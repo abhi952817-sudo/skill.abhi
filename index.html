@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>skill.abhi</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="css/style.css" />
+  <meta name="description" content="skill.abhi — Educational portal with Student & Admin panels." />
+
+  <!-- Firebase compat libs (used to initialize Realtime Database) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <a href="#" id="brandName">skill.abhi</a>
+      </div>
+
+      <nav class="topnav" aria-label="Main">
+        <button id="viewStudent" class="tab-btn active" title="Student view">Student Panel</button>
+        <button id="viewAdmin" class="tab-btn" title="Admin view">Admin Panel</button>
+      </nav>
+
+      <div class="auth-actions">
+        <span id="adminStatus" class="muted">Not signed in</span>
+        <button id="adminLogoutBtn" class="small ghost" style="display:none">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-grid" id="appRoot">
+    <!-- Student Panel -->
+    <section id="studentPanel" class="panel">
+      <section class="hero">
+        <h1>Welcome to skill.abhi</h1>
+        <p class="lead">A student-first educational portal — organized by study categories.</p>
+      </section>
+
+      <!-- Category: Biology -->
+      <section class="content-block category-block">
+        <h2>Biology Study Materials</h2>
+
+        <div class="sub-section">
+          <h3>Notices</h3>
+          <div id="bioNoticesList" class="list"></div>
+          <div id="bioNoNotices" class="muted small" style="display:none">No notices yet.</div>
+        </div>
+
+        <div class="sub-section">
+          <h3>Videos</h3>
+          <div id="bioVideosList" class="videos-grid"></div>
+          <div id="bioNoVideos" class="muted small" style="display:none">No videos yet.</div>
+        </div>
+
+        <div class="sub-section">
+          <h3>PDFs</h3>
+          <div id="bioPdfsList" class="list"></div>
+          <div id="bioNoPdfs" class="muted small" style="display:none">No PDFs yet.</div>
+        </div>
+      </section>
+
+      <!-- Category: Physics -->
+      <section class="content-block category-block">
+        <h2>Physics Simplified Formulas</h2>
+
+        <div class="sub-section">
+          <h3>Notices</h3>
+          <div id="phyNoticesList" class="list"></div>
+          <div id="phyNoNotices" class="muted small" style="display:none">No notices yet.</div>
+        </div>
+
+        <div class="sub-section">
+          <h3>Videos</h3>
+          <div id="phyVideosList" class="videos-grid"></div>
+          <div id="phyNoVideos" class="muted small" style="display:none">No videos yet.</div>
+        </div>
+
+        <div class="sub-section">
+          <h3>PDFs</h3>
+          <div id="phyPdfsList" class="list"></div>
+          <div id="phyNoPdfs" class="muted small" style="display:none">No PDFs yet.</div>
+        </div>
+      </section>
+
+      <!-- Category: Chemistry -->
+      <section class="content-block category-block">
+        <h2>Chemistry Problem Methods</h2>
+
+        <div class="sub-section">
+          <h3>Notices</h3>
+          <div id="chemNoticesList" class="list"></div>
+          <div id="chemNoNotices" class="muted small" style="display:none">No notices yet.</div>
+        </div>
+
+        <div class="sub-section">
+          <h3>Videos</h3>
+          <div id="chemVideosList" class="videos-grid"></div>
+          <div id="chemNoVideos" class="muted small" style="display:none">No videos yet.</div>
+        </div>
+
+        <div class="sub-section">
+          <h3>PDFs</h3>
+          <div id="chemPdfsList" class="list"></div>
+          <div id="chemNoPdfs" class="muted small" style="display:none">No PDFs yet.</div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Admin Panel -->
+    <section id="adminPanel" class="panel hidden" aria-hidden="true">
+      <div class="admin-shell">
+        <div class="admin-sidebar">
+          <button class="admin-tab active" data-tab="dashboard">Dashboard</button>
+          <button class="admin-tab" data-tab="settings">Settings</button>
+          <div class="spacer"></div>
+          <div class="admin-footer muted">Signed in as: <span id="adminNameDisplay">-</span></div>
+        </div>
+
+        <div class="admin-main">
+          <!-- Password gate -->
+          <div id="adminGate" class="card auth-card">
+            <h3>Admin Sign In</h3>
+            <p>Enter admin password to unlock the Admin Panel.</p>
+            <label class="form-row">
+              <input id="adminPasswordInput" type="password" placeholder="Admin password" />
+            </label>
+            <div class="actions-row">
+              <button id="adminSignInBtn" class="btn">Sign In</button>
+            </div>
+            <div id="adminGateMessage" class="muted small"></div>
+          </div>
+
+          <!-- Admin content -->
+          <div id="adminContent" class="hidden">
+            <!-- Dashboard -->
+            <div id="dashboardTab" class="tab-content">
+              <h3>Dashboard — Post content (choose a Category)</h3>
+
+              <div class="grid-2">
+                <div class="card">
+                  <h4>Post a Notice</h4>
+                  <form id="noticeForm" class="stack">
+                    <label>Category
+                      <select name="category" required>
+                        <option value="biology">Biology Study Materials</option>
+                        <option value="physics">Physics Simplified Formulas</option>
+                        <option value="chemistry">Chemistry Problem Methods</option>
+                      </select>
+                    </label>
+                    <label>Title <input name="title" required placeholder="e.g., Exam schedule" /></label>
+                    <label>Message <textarea name="message" rows="4" required placeholder="Write the notice..."></textarea></label>
+                    <div class="actions-row">
+                      <button type="submit" class="btn">Post Notice</button>
+                    </div>
+                  </form>
+                </div>
+
+                <div class="card">
+                  <h4>Share a YouTube Video</h4>
+                  <form id="videoForm" class="stack">
+                    <label>Category
+                      <select name="category" required>
+                        <option value="biology">Biology Study Materials</option>
+                        <option value="physics">Physics Simplified Formulas</option>
+                        <option value="chemistry">Chemistry Problem Methods</option>
+                      </select>
+                    </label>
+                    <label>Title <input name="title" required placeholder="Short title" /></label>
+                    <label>YouTube URL <input name="url" required placeholder="https://youtu.be/..." /></label>
+                    <div class="actions-row">
+                      <button type="submit" class="btn">Add Video</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="card">
+                <h4>Add a PDF Link</h4>
+                <form id="pdfForm" class="stack">
+                  <label>Category
+                    <select name="category" required>
+                      <option value="biology">Biology Study Materials</option>
+                      <option value="physics">Physics Simplified Formulas</option>
+                      <option value="chemistry">Chemistry Problem Methods</option>
+                    </select>
+                  </label>
+                  <label>Title <input name="title" required placeholder="Lecture notes" /></label>
+                  <label>PDF URL <input name="url" required placeholder="https://.../file.pdf" /></label>
+                  <div class="actions-row">
+                    <button type="submit" class="btn">Add PDF</button>
+                  </div>
+                </form>
+              </div>
+
+              <hr />
+
+              <h4>Manage Content</h4>
+              <div class="card">
+                <h5>Notices</h5>
+                <div id="adminNoticesList" class="list"></div>
+                <h5>Videos</h5>
+                <div id="adminVideosList" class="list"></div>
+                <h5>PDFs</h5>
+                <div id="adminPdfsList" class="list"></div>
+              </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settingsTab" class="tab-content hidden">
+              <h3>Settings — Admin</h3>
+              <p class="muted small">Firebase config is hardcoded for testing in this build.</p>
+
+              <form id="adminPasswordForm" class="card stack">
+                <label>Admin Password <input name="adminPassword" placeholder="Set admin password" /></label>
+                <div class="actions-row">
+                  <button id="saveAdminPasswordBtn" type="button" class="btn">Save Admin Password</button>
+                  <button id="resetAdminPasswordBtn" type="button" class="ghost">Reset to Default</button>
+                </div>
+                <div id="passwordMessage" class="muted small"></div>
+              </form>
+            </div>
+          </div>
+          <!-- end adminContent -->
+        </div>
+        <!-- end admin-main -->
+      </div>
+      <!-- end admin-shell -->
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="muted small">© <span id="year"></span> skill.abhi — Built for learning</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js" defer></script>
+</body>
+</html>
